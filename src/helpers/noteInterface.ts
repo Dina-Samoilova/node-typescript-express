@@ -1,4 +1,5 @@
-export type Category = "Task" | "Random Thought" | "Idea";
+export const category = ['Task', 'Random Thought', 'Idea'];
+export type Category = (typeof category)[number];
 
 export interface Note {
   id: number;
