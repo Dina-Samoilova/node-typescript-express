@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStats = exports.remove = exports.update = exports.create = exports.getOne = exports.getAll = void 0;
+const helpFunc_1 = require("../helpers/helpFunc");
 const noteService = __importStar(require("../services/notesService"));
 const getAll = (req, res) => {
     const notes = noteService.getAll();
@@ -42,7 +43,9 @@ const getOne = (req, res) => {
 exports.getOne = getOne;
 const create = (req, res) => {
     const { title, description, category } = req.body;
-    if (!title || !description || !category) {
+    if (typeof title !== 'string' ||
+        typeof description !== 'string' ||
+        !(0, helpFunc_1.validationCategory)(category)) {
         res.sendStatus(422);
         return;
     }
@@ -59,7 +62,24 @@ const update = (req, res) => {
         return;
     }
     const { title, description, category, active } = req.body;
-    if (!title && !description && !category && typeof active !== 'boolean') {
+    if (title && typeof title !== 'string') {
+        res.sendStatus(422);
+        return;
+    }
+    if (description && typeof description !== 'string') {
+        res.sendStatus(422);
+        return;
+    }
+    if (category && (0, helpFunc_1.validationCategory)(category) === false) {
+        res.sendStatus(422);
+        return;
+    }
+    if (active !== undefined && typeof active !== 'boolean') {
+        res.sendStatus(422);
+        return;
+    }
+    if (title === undefined && description === undefined
+        && category === undefined && active === undefined) {
         res.sendStatus(422);
         return;
     }
@@ -79,7 +99,7 @@ const remove = (req, res) => {
 };
 exports.remove = remove;
 const getStats = (req, res) => {
-    const stats = noteService.stats();
-    res.send(stats);
+    const stat = noteService.getStats();
+    res.send(stat);
 };
 exports.getStats = getStats;

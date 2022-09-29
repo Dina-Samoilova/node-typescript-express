@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Note, Stats } from '../helpers/noteInterface';
+import { validationCategory } from '../helpers/helpFunc'
 import * as noteService from '../services/notesService';
 
 export const getAll = (req: Request, res: Response) => {
@@ -23,7 +24,11 @@ export const getOne = (req: Request, res: Response) => {
 export const create = (req: Request, res: Response) => {
   const { title, description, category } = req.body;
 
-  if (!title || !description || !category) {
+  if (
+    typeof title !== 'string' ||
+    typeof description !== 'string' ||
+    !validationCategory(category)
+  ) {
     res.sendStatus(422);
     return;
   }
@@ -45,10 +50,31 @@ export const update = (req: Request, res: Response) => {
 
   const { title, description, category, active } = req.body;
 
-  if (!title && !description && !category && typeof active !== 'boolean') {
+  if (title && typeof title !== 'string') {
     res.sendStatus(422);
     return;
   }
+
+  if (description && typeof description !== 'string') {
+    res.sendStatus(422);
+    return;
+  }
+
+  if (category && validationCategory(category) === false) {
+    res.sendStatus(422);
+    return;
+  }
+
+  if (active !== undefined && typeof active !== 'boolean') {
+    res.sendStatus(422);
+    return;
+  }
+
+  if (title === undefined && description === undefined
+    && category === undefined && active === undefined) {
+      res.sendStatus(422);
+      return;
+    }
 
   noteService.update(id, title, description, category, active);
 
@@ -69,7 +95,7 @@ export const remove = (req: Request, res: Response) => {
 };
 
 export const getStats = (req: Request, res: Response) => {
-  const stats: Stats = noteService.stats();
+  const stat: Stats = noteService.getStats();
 
-  res.send(stats);
+  res.send(stat);
 };
