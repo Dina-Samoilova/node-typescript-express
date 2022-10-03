@@ -6,7 +6,7 @@ services:
     build: .
     ports:
       - '5050:5050'
-    links:
+    external_links:
       - postgres
   postgres:
     container_name: postgres
